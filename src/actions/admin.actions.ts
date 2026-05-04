@@ -46,21 +46,16 @@ export async function createScene(formData: FormData) {
   const price = parseInt(formData.get('price') as string) || 0
   const isDefault = formData.get('isDefault') === 'on'
 
-  try {
-    await prisma.scene.create({
-      data: {
-        name,
-        imageUrl,
-        type,
-        price,
-        isDefault
-      }
-    })
-    revalidatePath('/admin/scenes')
-    return { success: true, message: 'Scene created successfully' }
-  } catch (error: any) {
-    return { error: error.message, success: false }
-  }
+  await prisma.scene.create({
+    data: {
+      name,
+      imageUrl,
+      type,
+      price,
+      isDefault
+    }
+  })
+  revalidatePath('/admin/scenes')
 }
 
 /**
@@ -68,13 +63,8 @@ export async function createScene(formData: FormData) {
  */
 export async function deleteScene(id: string) {
   await ensureAdmin()
-  try {
-    await prisma.scene.delete({ where: { id } })
-    revalidatePath('/admin/scenes')
-    return { success: true }
-  } catch (error: any) {
-    return { error: error.message, success: false }
-  }
+  await prisma.scene.delete({ where: { id } })
+  revalidatePath('/admin/scenes')
 }
 
 /**
@@ -97,16 +87,11 @@ export async function updateUserDetails(userId: string, data: {
   username?: string 
 }) {
   await ensureAdmin()
-  try {
-    await prisma.profile.update({
-      where: { id: userId },
-      data
-    })
-    revalidatePath('/admin/users')
-    return { success: true }
-  } catch (error: any) {
-    return { error: error.message, success: false }
-  }
+  await prisma.profile.update({
+    where: { id: userId },
+    data
+  })
+  revalidatePath('/admin/users')
 }
 
 /**
@@ -115,19 +100,14 @@ export async function updateUserDetails(userId: string, data: {
 export async function deleteUser(userId: string) {
   await ensureAdmin()
   
-  try {
-    // 1. Delete from Prisma (Cascades to focus sessions and inventory)
-    await prisma.profile.delete({
-      where: { id: userId }
-    })
+  // 1. Delete from Prisma (Cascades to focus sessions and inventory)
+  await prisma.profile.delete({
+    where: { id: userId }
+  })
 
-    // 2. Note: Deleting from Supabase Auth requires Service Role Key.
-    // If we only have the anon/authenticated key on server.ts, we can't delete auth users easily.
-    // However, the Prisma delete ensures they can't use the app features.
-    
-    revalidatePath('/admin/users')
-    return { success: true, message: 'User profile deleted successfully.' }
-  } catch (error: any) {
-    return { error: error.message, success: false }
-  }
+  // 2. Note: Deleting from Supabase Auth requires Service Role Key.
+  // If we only have the anon/authenticated key on server.ts, we can't delete auth users easily.
+  // However, the Prisma delete ensures they can't use the app features.
+  
+  revalidatePath('/admin/users')
 }

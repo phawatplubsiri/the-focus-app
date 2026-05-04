@@ -32,25 +32,25 @@ export function AdminUserTable({ initialUsers }: AdminUserTableProps) {
   }
 
   const handleSave = async (id: string) => {
-    const result = await updateUserDetails(id, {
-      username: editData.username,
-      experienceScore: Number(editData.experienceScore),
-      totalPoints: Number(editData.totalPoints),
-      role: editData.role
-    })
-    
-    if (result.success) {
+    try {
+      await updateUserDetails(id, {
+        username: editData.username || undefined,
+        experienceScore: Number(editData.experienceScore),
+        totalPoints: Number(editData.totalPoints),
+        role: editData.role
+      })
       setEditingId(null)
-    } else {
-      alert('Error: ' + result.error)
+    } catch (error: any) {
+      alert('Error: ' + error.message)
     }
   }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this hero? This action cannot be undone.')) {
-      const result = await deleteUser(id)
-      if (!result.success) {
-        alert('Error: ' + result.error)
+      try {
+        await deleteUser(id)
+      } catch (error: any) {
+        alert('Error: ' + error.message)
       }
     }
   }

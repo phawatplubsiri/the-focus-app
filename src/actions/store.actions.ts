@@ -40,7 +40,7 @@ export async function purchaseScene(sceneId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return { error: 'Unauthorized', success: false }
+  if (!user) return { error: 'Unauthorized', success: false, message: undefined }
 
   try {
     return await prisma.$transaction(async (tx) => {
@@ -61,12 +61,12 @@ export async function purchaseScene(sceneId: string) {
       })
 
       if (existing || scene.isDefault) {
-        return { error: 'You already own this scene', success: false }
+        return { error: 'You already own this scene', success: false, message: undefined }
       }
 
       // 3. Check if enough points
       if (profile.totalPoints < scene.price) {
-        return { error: 'Insufficient ◈ Points', success: false }
+        return { error: 'Insufficient ◈ Points', success: false, message: undefined }
       }
 
       // 4. Deduct points and add to inventory
@@ -86,10 +86,10 @@ export async function purchaseScene(sceneId: string) {
         }
       })
 
-      return { success: true, message: `Unlocked ${scene.name}!` }
+      return { success: true, message: `Unlocked ${scene.name}!`, error: undefined }
     })
   } catch (error: any) {
-    return { error: error.message || 'Purchase failed', success: false }
+    return { error: error.message || 'Purchase failed', success: false, message: undefined }
   } finally {
     revalidatePath('/')
   }
@@ -102,7 +102,7 @@ export async function setActiveScene(sceneId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return { error: 'Unauthorized', success: false }
+  if (!user) return { error: 'Unauthorized', success: false, message: undefined }
 
   try {
     // Check ownership first
@@ -124,8 +124,8 @@ export async function setActiveScene(sceneId: string) {
     })
 
     revalidatePath('/')
-    return { success: true }
+    return { success: true, message: `Set ${scene.name} as background`, error: undefined }
   } catch (error: any) {
-    return { error: error.message, success: false }
+    return { error: error.message, success: false, message: undefined }
   }
 }
