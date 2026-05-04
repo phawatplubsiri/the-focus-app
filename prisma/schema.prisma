@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ป้องกัน Prisma ไปยุ่งกับตารางประวัติของระบบเผื่อมันหลงเข้ามาใน public
+model schema_migrations {
+  version String @id
+  @@ignore
+}
+
+// ==========================================
+// ตารางหลักของแอปเรา (ดูแลโดย Prisma 100%)
+// ==========================================
+model Profile {
+  id              String   @id @db.Uuid 
+  email           String   @unique
+  username        String?  @unique
+  role            String   @default("USER")
+  totalPoints     Int      @default(0) @map("total_points")
+  experienceScore Int      @default(0) @map("experience_score")
+  currentSceneId  String?  @db.Uuid    @map("current_scene_id")
+  
+  inventory      UserInventory[]
+  sessions       FocusSession[]
+  currentScene   Scene?          @relation("ActiveScene", fields: [currentSceneId], references: [id])
+
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt      @map("updated_at")
+
+  @@map("profiles") 
+}
+
+model Scene {
+  id          String          @id @default(uuid()) @db.Uuid
+  name        String          @unique
+  type        String          @default("static")
+  imageUrl    String          @map("image_url")
+  price       Int             @default(0)
+  isDefault   Boolean         @default(false) @map("is_default")
+
+  owners      UserInventory[]
+  activeUsers Profile[]       @relation("ActiveScene")
+
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@map("scenes")  
+}
+
+model UserInventory {
+  id         String   @id @default(uuid())
+  userId     String   @db.Uuid @map("user_id")
+  sceneId    String   @db.Uuid @map("scene_id")
+
+  user       Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scene      Scene    @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+
+  acquiredAt DateTime @default(now()) @map("unlocked_at")
+
+  @@unique([userId, sceneId])
+  @@map("user_inventory") 
+}
+
+model FocusSession {
+  id              String   @id @default(uuid())
+  userId          String   @db.Uuid @map("user_id")
+  durationMinutes Int      @map("duration_minutes")
+  earnedPoints    Int      @map("earned_points")
+  
+  user            Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("focus_sessions")  
+}
