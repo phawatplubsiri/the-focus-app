@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -10,17 +10,45 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-pixel: var(--font-pixel);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-in-top {
+    from { transform: translateY(-1rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slide-in-bottom {
+    from { transform: translateY(1rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slide-in-left {
+    from { transform: translateX(-1rem); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes zoom-in {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  --animation-fade-in: fade-in 0.7s ease-out;
+  --animation-slide-in-top: slide-in-top 0.7s ease-out;
+  --animation-slide-in-bottom: slide-in-bottom 0.7s ease-out;
+  --animation-slide-in-left: slide-in-left 0.7s ease-out;
+  --animation-zoom-in: zoom-in 0.7s ease-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+.animate-fade-in { animation: var(--animation-fade-in); }
+.animate-slide-in-top { animation: var(--animation-slide-in-top); }
+.animate-slide-in-bottom { animation: var(--animation-slide-in-bottom); }
+.animate-slide-in-left { animation: var(--animation-slide-in-left); }
+.animate-zoom-in { animation: var(--animation-zoom-in); }
+
+.fill-mode-both { animation-fill-mode: both; }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
