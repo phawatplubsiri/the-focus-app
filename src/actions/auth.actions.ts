@@ -82,7 +82,12 @@ export async function signInWithGoogle() {
   const supabase = await createClient()
   
   const headerList = await headers()
-  const origin = headerList.get('origin') || 'http://localhost:3000'
+  let origin = headerList.get('origin')
+  
+  if (!origin) {
+    origin = process.env.NEXT_PUBLIC_SITE_URL || 
+             (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000')
+  }
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
