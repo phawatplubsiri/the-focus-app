@@ -86,9 +86,9 @@ export async function signInWithGoogle() {
   // ใช้ x-forwarded-host (Vercel ใส่ให้เสมอ) หรือ host header แทน origin ที่ไม่น่าเชื่อถือ
   const host = headerList.get('x-forwarded-host') || headerList.get('host') || 'localhost:3000'
   const protocol = host.includes('localhost') ? 'http' : 'https'
-  const origin = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+  const origin = `${protocol}://${host}`
   
-  const redirectUrl = `${origin.replace(/\/$/, '')}/auth/callback`
+  const redirectUrl = `${origin}/auth/callback`
   console.log("Supabase Auth Redirect URL:", redirectUrl)
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -118,8 +118,13 @@ export async function forgotPassword(prevState: AuthActionResponse | null, formD
   const supabase = await createClient()
   const email = formData.get('email') as string
 
+  const headerList = await headers()
+  const host = headerList.get('x-forwarded-host') || headerList.get('host') || 'localhost:3000'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const origin = `${protocol}://${host}`
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/reset-password`
+    redirectTo: `${origin}/auth/callback?next=/reset-password`
   })
 
   if (error) {

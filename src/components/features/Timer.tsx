@@ -7,7 +7,7 @@ import { completeFocusSession } from '@/actions/timer.actions'
 import { Icons } from '@/components/ui/Icons'
 
 export const Timer = () => {
-  const { timeLeft, duration, isActive, startTimer, stopTimer, resetTimer, tick, setDuration } = useFocusStore()
+  const { timeLeft, duration, isActive, startTimer, stopTimer, resetTimer, resetToDefault, tick, setDuration } = useFocusStore()
   const { isTimerVisible, toggleTimer } = useUIStore()
 
   const handleComplete = useCallback(async () => {
@@ -144,12 +144,23 @@ export const Timer = () => {
           }`} />
         </button>
 
-        <button 
-          onClick={() => resetTimer()}
-          className="text-[10px] text-neutral-600 uppercase tracking-widest hover:text-neutral-400 transition-colors"
-        >
-          Abort Mission (Reset)
-        </button>
+        <div className="flex items-center gap-6">
+          <button 
+            onClick={() => resetTimer()}
+            className="text-[10px] text-neutral-600 uppercase tracking-widest hover:text-red-400 transition-colors"
+          >
+            Abort Mission
+          </button>
+          
+          <div className="w-1 h-1 rounded-full bg-white/10" />
+
+          <button 
+            onClick={() => resetToDefault()}
+            className="text-[10px] text-neutral-600 uppercase tracking-widest hover:text-cyan-400 transition-colors"
+          >
+            Reset to Default
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 
 export async function updateUsername(username: string) {
   const supabase = await createClient()
@@ -32,6 +33,8 @@ export async function updateUsername(username: string) {
   }
 }
 
+
+
 export async function resetPasswordEmail() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -40,8 +43,13 @@ export async function resetPasswordEmail() {
     return { error: 'User email not found', success: false }
   }
 
+  const headerList = await headers()
+  const host = headerList.get('x-forwarded-host') || headerList.get('host') || 'localhost:3000'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const origin = `${protocol}://${host}`
+
   const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/reset-password`
+    redirectTo: `${origin}/auth/callback?next=/reset-password`
   })
 
   if (error) {
