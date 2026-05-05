@@ -82,17 +82,13 @@ export async function signInWithGoogle() {
   const supabase = await createClient()
   
   const headerList = await headers()
-  let origin = headerList.get('origin')
   
-  if (!origin) {
-    origin = process.env.NEXT_PUBLIC_SITE_URL || 
-             (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000')
-  }
+  // ใช้ x-forwarded-host (Vercel ใส่ให้เสมอ) หรือ host header แทน origin ที่ไม่น่าเชื่อถือ
+  const host = headerList.get('x-forwarded-host') || headerList.get('host') || 'localhost:3000'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   
-  // ลบ trailing slash ออกถ้ามี (เช่น http://localhost:3000/ -> http://localhost:3000)
-  origin = origin.replace(/\/$/, '')
-  
-  const redirectUrl = `${origin}/auth/callback`
+  const redirectUrl = `${origin.replace(/\/$/, '')}/auth/callback`
   console.log("Supabase Auth Redirect URL:", redirectUrl)
 
   const { data, error } = await supabase.auth.signInWithOAuth({
