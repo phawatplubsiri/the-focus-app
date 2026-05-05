@@ -11,17 +11,24 @@ export default async function Home() {
   
   let profile = null
   let dailyStats = null
+  let dbError = null
+  
   if (user) {
-    // 2. ดึงข้อมูล Profile ถ้าล็อกอินแล้ว
-    profile = await userService.getProfile(user.id)
-    
-    // ถ้าไม่มี Profile ให้สร้างใหม่
-    if (!profile) {
-      profile = await userService.createProfile(user.id, user.email || '')
-    }
+    try {
+      // 2. ดึงข้อมูล Profile ถ้าล็อกอินแล้ว
+      profile = await userService.getProfile(user.id)
+      
+      // ถ้าไม่มี Profile ให้สร้างใหม่
+      if (!profile) {
+        profile = await userService.createProfile(user.id, user.email || '')
+      }
 
-    // 3. ดึงข้อมูล Daily Stats
-    dailyStats = await userService.getDailyStats(user.id)
+      // 3. ดึงข้อมูล Daily Stats
+      dailyStats = await userService.getDailyStats(user.id)
+    } catch (e: any) {
+      console.error("Database Connection Error:", e)
+      dbError = e.message || "Failed to connect to database"
+    }
   }
 
   return (
