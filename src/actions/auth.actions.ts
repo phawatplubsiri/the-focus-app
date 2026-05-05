@@ -89,10 +89,16 @@ export async function signInWithGoogle() {
              (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000')
   }
   
+  // ลบ trailing slash ออกถ้ามี (เช่น http://localhost:3000/ -> http://localhost:3000)
+  origin = origin.replace(/\/$/, '')
+  
+  const redirectUrl = `${origin}/auth/callback`
+  console.log("Supabase Auth Redirect URL:", redirectUrl)
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/auth/callback`,
+      redirectTo: redirectUrl,
     },
   })
 
